@@ -1,0 +1,122 @@
+* {
+	padding: 0;
+	margin: 0;
+}
+
+html, body, #bgBtn {
+	width: 100%;
+	height: 100%;
+}
+
+body {
+	font-family: sans-serif;
+}
+
+#bgBtn {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1;
+}
+
+#bgBtn:hover, #closeBtn:hover, #prevColorBtn:hover, #nextColorBtn:hover {
+	cursor: pointer;
+}
+
+#panel {
+	width: 355px;
+	background-color: #000000;
+	border-radius: 20px;
+	position: relative;
+	-webkit-user-select: none;
+	margin: 20px;
+	display: inline-block;
+	z-index: 2;
+}
+
+#panel:hover {
+	cursor: default;
+}
+
+#closeBtn {
+	position: absolute;
+	top: 6px;
+	right: 9px;
+	padding: 5px;
+	border: 2px solid #FFFFFF;
+	border-radius: 50%;
+	width: 12px;
+	height: 12px;
+	line-height: 14px;
+	text-align: center;
+}
+
+#closeBtnText {
+	color: #FFFFFF;
+}
+
+#hexLabel, #rgbLabel {
+	color: #FFFFFF;
+	text-transform: uppercase;
+	cursor: copy;
+	margin: 10px 20px;
+	display: inline-block;
+}
+
+#colorBtns {
+
+}
+
+#prevColorBtn, #nextColorBtn {
+	width: 41%;
+	height: 40px;
+	background-color: #525252;
+	border: 2px solid white;
+	border-radius: 15px;
+	margin: 10px 20px 20px;
+	display: none;
+}
+
+#prevColorBtnText, #nextColorBtnText {
+	color: #FFFFFF;
+	text-align: center;
+	line-height: 38px;
+}
+
+#prevColorBtn {
+	margin-right: 0;
+}
+
+#prevColorBtnText {
+
+}
+
+#nextColorBtn {
+	float: right;
+	margin-left: 0;
+}
+
+#nextColorBtnText {
+
+}
+
+#showPanelBtn {
+	width: 20px;
+	height: 20px;
+	background-color: #000000;
+	display: none;
+}
+
+#showPanelBtnText {
+	color: #FFFFFF;
+	text-align: center;
+}
+
+.clear:before, .clear:after {
+	content: "";
+	display: table;
+}
+
+.clear:after {
+	clear: both;
+}
