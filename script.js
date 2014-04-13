@@ -1,14 +1,95 @@
 var options = [0,1,2,3,4,5,6,7,8,9,'a','b','c','d','e'];
-var generatedValues = [];
-var genValsCurrentIndex = 2;
 
 var hexValue = '';
+var colorCodePref = 'hex';
+// var c_colorCodePref = '';
+var lastSavedColor = '';
 
 var $bgBtn = document.getElementById('bgBtn');
-var $prevColorBtn = document.getElementById('prevColorBtn');
-var $nextColorBtn = document.getElementById('nextColorBtn');
+var $panel = document.getElementById('panel');
+var $savedColors = document.getElementById('savedColors');
+var $scrollWrapper = document.getElementById('scrollWrapper');
+var $colorCodeLabel = document.getElementById('colorCodeLabel');
+var $infoBtn = document.getElementById('infoBtn');
+var $popupOverlay = document.getElementById('popupOverlay');
+var $infoContent = document.getElementById('infoContent');
 var $closeBtn = document.getElementById('closeBtn');
-var $showPanelBtn = document.getElementById('showPanelBtn');
+var $hexInput = document.getElementById('hexInput');
+var $rgbInput = document.getElementById('rgbInput');
+var $panelToggleBtn = document.getElementById('panelToggleBtn');
+
+
+if(docCookies.hasItem('c_colorCodePref'))
+{
+	// cookie does exist
+	// read c_colorCodePref value and set form input accordingly
+	var pref = docCookies.getItem('c_colorCodePref');
+	// update checked input
+	if(pref === $hexInput.value)
+	{
+		colorCodePref = pref;
+		$hexInput.setAttribute('checked', 'checked');
+		$rgbInput.removeAttribute('checked');
+		updateLabel(hexValue);
+	}
+	else if(pref === $rgbInput.value)
+	{
+		colorCodePref = pref;
+		$rgbInput.setAttribute('checked', 'checked');
+		$hexInput.removeAttribute('checked');
+		updateLabel(hexValue);
+	}
+}
+else
+{
+	// cookie does not exist
+	// display popup
+	$popupOverlay.style.display = 'block';
+	// create cookie c_colorCodePref with the value 'hex'
+	setColorCodePref();
+}
+
+function setColorCodePref()
+{
+	if($hexInput.checked)
+	{
+		colorCodePref = 'hex';
+		// update cookie
+		docCookies.removeItem('c_colorCodePref');
+		docCookies.setItem('c_colorCodePref', colorCodePref, 604800);
+	}
+	else if($rgbInput.checked)
+	{
+		colorCodePref = 'rgb';
+		// update cookie
+		docCookies.removeItem('c_colorCodePref');
+		docCookies.setItem('c_colorCodePref', colorCodePref, 604800);
+	}
+	updateLabel(hexValue);
+}
+
+function getNewColor()
+{
+	generateRandomHex();
+	setColor(hexValue);
+	updateLabel(hexValue);
+}
+getNewColor();
+
+function copyColorInit()
+{
+	var client = new ZeroClipboard( document.getElementById("colorCodeLabel"), {
+	  moviePath: "ZeroClipboard.swf"
+	} );
+
+  client.on( "aftercopy", function( event ) {
+    // `this` === `client`
+    // `event.target` === the element that was clicked
+    event.target.style.display = "none";
+    alert("Copied text to clipboard: " + event.data["text/plain"] );
+  } );
+}
+copyColorInit();
 
 function generateRandomHex()
 {
@@ -18,34 +99,21 @@ function generateRandomHex()
 		randomSelection = options[Math.floor(Math.random() * options.length)];
 		hexValue += randomSelection;
 	}
-
-	generatedValues.push(hexValue);
-	console.log(generatedValues);
-
-	genValsCurrentIndex = 2;
-
-	setColor(hexValue);
-	updateLabels(hexValue);
-
-	if(generatedValues.length > 1)
-	{
-		$prevColorBtn.style.display = 'inline-block';
-	}
-	else
-	{
-		$prevColorBtn.style.display = 'none';	
-	}
 }
 
-function updateLabels(hexValue)
+function updateLabel(hexValue)
 {
-	var $hexLabel = document.getElementById('hexLabel');
-	$hexLabel.innerHTML = hexValue;
-
-
-	var rgbValue = document.body.style.backgroundColor;
-	var $rgbLabel = document.getElementById('rgbLabel');
-	$rgbLabel.innerHTML = rgbValue;
+	if(colorCodePref === 'hex')
+	{
+		$colorCodeLabel.innerHTML = hexValue + '<i id="copyBtn" class="fa fa-copy"></i>';
+		$colorCodeLabel.setAttribute('data-clipboard-text', hexValue.toUpperCase());
+	}
+	else if(colorCodePref === 'rgb')
+	{
+		var rgbValue = document.body.style.backgroundColor;
+		$colorCodeLabel.innerHTML = rgbValue  + '<i id="copyBtn" class="fa fa-copy"></i>';
+		$colorCodeLabel.setAttribute('data-clipboard-text', rgbValue.toUpperCase());
+	}
 }
 
 function setColor(hexValue)
@@ -53,78 +121,175 @@ function setColor(hexValue)
 	document.body.style.backgroundColor = hexValue;
 }
 
-generateRandomHex();
-
-
-function togglePanel($panel)
+function togglePanel()
 {
 	// If panel is open, close it
-	var $panel = document.getElementById('panel');
-	var $showPanelBtn = document.getElementById('showPanelBtn');
 	if($panel.style.display === 'none')
 	{
-		$panel.style.display = 'inline-block';
-		$showPanelBtn.style.display = 'none';
+		$panelToggleBtn.style.top = '-30px';
+		$panel.style.display = 'block';
 	}
 	else
 	{
+		$panelToggleBtn.style.top = '0';
 		$panel.style.display = 'none';
-		$showPanelBtn.style.display = 'inline-block';
 	}
 }
 
-function loadPrevColor()
+function toggleInfo()
 {
-	if((generatedValues.length - genValsCurrentIndex) === 0)
+	// If infoContent popup is open, close it
+	if($popupOverlay.style.display === 'none')
 	{
-		$prevColorBtn.style.display = 'none';
+		$popupOverlay.style.display = 'block';
 	}
-	var prevColor = generatedValues[generatedValues.length - genValsCurrentIndex];
-	genValsCurrentIndex++;
-	if(genValsCurrentIndex > 2)
+	else
 	{
-		$nextColorBtn.style.display = 'inline-block';
+		$popupOverlay.style.display = 'none';
 	}
-
-	console.log(prevColor);
-	setColor(prevColor);
-	updateLabels(prevColor);
 }
 
-function loadNextColor()
+function closeAllTheThings()
 {
-	console.log(genValsCurrentIndex);
-	var nextColor = generatedValues[genValsCurrentIndex - 1];
-	genValsCurrentIndex--;
-	if(genValsCurrentIndex === 2)
-	{
-		$nextColorBtn.style.display = 'none';
-	}
-	if(genValsCurrentIndex > 2)
-	{
-		$nextColorBtn.style.display = 'inline-block';
-	}
+	$panel.style.display = 'none';
+	$panelToggleBtn.style.top = '0';
+	$popupOverlay.style.display = 'none';
+}
 
-	console.log(nextColor);
-	setColor(nextColor);
-	updateLabels(nextColor);
+function saveColor()
+{
+	if(hexValue !== lastSavedColor)
+	{
+		// create new div node and append into savedColors
+		var swatch = document.createElement('span');
+		swatch.className = 'swatch';
+		swatch.dataset.hex = hexValue;
+		swatch.style.backgroundColor = hexValue;
+		swatch.innerHTML = '<i class="fa fa-times-circle-o swatchCloseBtn" style="display: none;"></i>'
+		$scrollWrapper.appendChild(swatch);
+		$panel.style.display = 'block';
+		var width = $scrollWrapper.scrollWidth;
+		$scrollWrapper.scrollLeft += width;
+		$panelToggleBtn.style.top = '-30px';
+		lastSavedColor = hexValue;
+	}
+}
+
+function swatchClicked(e)
+{
+	console.log('swatchClicked');
+	// return (e.target && e.target.nodeName == 'SPAN') ? true : false;
+	if(e.target && e.target.nodeName == 'SPAN')
+	{
+		console.log('swatchClicked be true');
+		return true;
+	}
+	else
+	{
+		console.log('swatchClicked be false');
+		return false;
+	}
+}
+
+function showSwatchDetails(e)
+{
+	var hexValue = e.target.getAttribute('data-hex');
+	setColor(hexValue);
+	updateLabel(hexValue);
+}
+
+function swatchCloseBtnClicked(e)
+{
+	console.log('swatchCloseBtnClicked');
+	// return (e.target && e.target.nodeName == 'I') ? true : false;
+	if(e.target.nodeName == 'I')
+	{
+		console.log('swatchCloseBtnClicked be true');
+		return true;
+	}
+	else
+	{
+		console.log('swatchCloseBtnClicked be false');
+		return false;
+	}
+}
+
+function removeSwatch(e)
+{
+	console.log('removeSwatch');
+}
+
+function toggleSwatchCloseBtn(e)
+{
+	if(e.target && e.target.nodeName == 'SPAN')
+	{
+		var i = e.target.getElementsByTagName('i')[0];
+		if(i.style.display === 'none')
+		{
+			console.log('over');
+			i.style.display = 'inline-block';
+		}
+		else if(i.style.display === 'inline-block')
+		{
+			console.log('out');
+			i.style.display = 'none';
+		}
+	}
 }
 
 
+$hexInput.onchange = setColorCodePref;
+$rgbInput.onchange = setColorCodePref;
+
+window.addEventListener('keyup', registerKeyPress, false);
 
 
-$bgBtn.onclick = generateRandomHex;
-$closeBtn.onclick = togglePanel;
-$showPanelBtn.onclick = togglePanel;
-$prevColorBtn.onclick = loadPrevColor;
-$nextColorBtn.onclick = loadNextColor;
+$bgBtn.addEventListener('click', getNewColor, false);
+$infoBtn.addEventListener('click', toggleInfo, false);
+$closeBtn.addEventListener('click', toggleInfo, false);
+$popupOverlay.addEventListener('click', toggleInfo, false);
+$panelToggleBtn.addEventListener('click', togglePanel, false);
 
+// $scrollWrapper.addEventListener('click', function(e)
+// {
+// 	if(swatchClicked(e))
+// 	{
+// 		showSwatchDetails(e);
+// 	}
+// }, false);
 
+// $scrollWrapper.addEventListener('click', function(e)
+// {
+// 	e.stopPropogation;
+// 	if(swatchCloseBtnClicked(e))
+// 	{
+// 		removeSwatch(e);
+// 	}
+// }, false);
 
+$scrollWrapper.addEventListener('click', function(e)
+{
+	if(swatchCloseBtnClicked(e))
+	{
+		removeSwatch(e);
+	}
+	else if(swatchClicked(e))
+	{
+		showSwatchDetails(e);
+	}
+}, false);
 
+$scrollWrapper.addEventListener('mouseover', function(e)
+{
+	e.stopPropogation;
+	toggleSwatchCloseBtn(e);
+}, false);
 
-
-
+// $scrollWrapper.addEventListener('mouseout', function(e)
+// {
+// 	e.stopPropogation;
+// 	toggleSwatchCloseBtn(e);
+// }, true);
 
 
 

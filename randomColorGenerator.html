@@ -3,37 +3,58 @@
 <html>
 	<head>
 		<title>Random Color Generator</title>
+		<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 		<link rel="stylesheet" href="style.css">
+
+		<meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, width=device-width">
 	</head>
 
 	<body>
-		<div id="panel">
-
-			<div id="closeBtn">
-				<p id="closeBtnText">X</p>
-			</div>
-
-			<h1 id="rgbLabel"></h1>
-			<h1 id="hexLabel"></h1>
-
-			<div id="colorBtns">
-				<div id="prevColorBtn">
-					<h4 id="prevColorBtnText">Previous Color</h4>
-				</div>
-
-				<div id="nextColorBtn">
-					<h4 id="nextColorBtnText">Next Color</h4>
-				</div>
-			</div>
-
-		</div>
-
-		<div id="showPanelBtn">
-			<p id="showPanelBtnText">&gt;</p>
-		</div>
-
+		
 		<div id="bgBtn"></div>
 
+		<div id="panel" style="display: none;">
+
+			<div id="savedColors">
+				<div id="scrollWrapper"></div>
+			</div>
+
+			<h1 id="colorCodeLabel" data-clipboard-text="tester cunt!"></h1>
+
+			<i id="infoBtn" class="fa fa-info-circle"></i>
+
+		</div>
+
+		<div id="panelToggleBtn">
+			<i class="fa fa-bars"></i>
+		</div>
+
+		<div id="popupOverlay" style="display: none;">
+			<div id="infoContent">
+				<i id="closeBtn" class="fa fa-times-circle-o"></i>
+
+				<h1 id="title">Random Color Generator</h1>
+
+				<div id="instructions">
+					<p>Click or tap the background to generator random colors.</p>
+					<br>
+					<p><span>Desktop</span>: Press spacebar to save colors to the pallette.</p>
+					<br>
+					<p><span>Mobile</span>: Tap and hold for one second to save colors to the pallette.</p>
+				</div>
+
+				<div id="preferences">
+					<p>Color Code Preference:</p>
+					<form>
+						<input id="hexInput" name="colorCodePref" type="radio" value="hex" checked>Hex
+						<input id="rgbInput" name="colorCodePref" type="radio" value="rgb">RGB
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<script src="ZeroClipboard.js"></script>
+		<script src="helpers.js"></script>
 		<script src="script.js"></script>
 	</body>
 </html>
