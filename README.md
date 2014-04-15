@@ -5,12 +5,10 @@ Click the background of a webpage to generate a random color and get hex/RGB cod
 
 
 ToDo:
-- Fix overlay close button and clicking on #infoContent
 - Remove copy button on mobile - think of alt. solution
-- Hover swatchCloseBtn glitch
 - Clean up directions popup
-- Make radio button labels clickable
-- BROKEN - changing color code preference on UI
+- Integrate touch events for saving on mobile
+- On page load, panel should be closed
 - Complete the README file
 
 
