@@ -2,7 +2,8 @@ function registerKeyPress(event)
 {
 	if(event.keyCode === 32)
 	{
-		saveColor();
+		$noSavedColorsLabel.style.display = 'none';
+		saveColor(hexValue);
 	}
 	else if(event.which === 27 || event.keyCode === 27)
 	{
@@ -20,7 +21,6 @@ function copyColorInit()
     // `this` === `client`
     // `event.target` === the element that was clicked
     event.target.style.display = "none";
-    alert("Copied text to clipboard: " + event.data["text/plain"] );
   } );
 }
 copyColorInit();

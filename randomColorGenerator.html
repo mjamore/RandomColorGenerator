@@ -16,10 +16,12 @@
 		<div id="panel" style="display: none;">
 
 			<div id="savedColors">
-				<div id="scrollWrapper"></div>
+				<div id="scrollWrapper">
+					<h4 id="noSavedColorsLabel">Press the spacebar to save colors</h4>
+				</div>
 			</div>
 
-			<h1 id="colorCodeLabel" data-clipboard-text="tester cunt!"></h1>
+			<h1 id="colorCodeLabel" data-clipboard-text="FREE_BOOSIE" title="Click to Copy"></h1>
 
 			<i id="infoBtn" class="fa fa-info-circle"></i>
 
@@ -36,24 +38,38 @@
 				<h1 id="title">Random Color Generator</h1>
 
 				<div id="instructions">
-					<p>Click or tap the background to generator random colors.</p>
+					<p>Click background to generate random colors.</p>
 					<br>
-					<p><span>Desktop</span>: Press spacebar to save colors to the pallette.</p>
+					<p>Press spacebar to save colors to the pallette.</p>
 					<br>
-					<p><span>Mobile</span>: Tap and hold for one second to save colors to the pallette.</p>
+					<p>Click color code to copy.</p>
+				</div>
+
+				<div id="instructionsTouch">
+					<p>Tap background to generate random colors.</p>
+					<br>
+					<p>Tap and hold for one second to save colors to the pallette.</p>
+					<br>
+					<p>Tap color code to copy.</p>
 				</div>
 
 				<div id="preferences">
 					<p>Color Code Preference:</p>
 					<form>
-						<input id="hexInput" name="colorCodePref" type="radio" value="hex" checked>Hex
-						<input id="rgbInput" name="colorCodePref" type="radio" value="rgb">RGB
+						<label for="hexInput">Hex</label>
+						<input id="hexInput" name="colorCodePref" type="radio" value="hex" checked>
+						<label for="rgbInput">RGB</label>
+						<input id="rgbInput" name="colorCodePref" type="radio" value="rgb">
+						<br>
+						<label for="LightShowFoSho">LightShow Mode&#8482;</label>
+						<input id="LightShowFoSho" name="LightShow" value="LightShow" type="checkbox">
 					</form>
 				</div>
 			</div>
 		</div>
 
 		<script src="ZeroClipboard.js"></script>
+		<script src="modernizr.min.js"></script>
 		<script src="helpers.js"></script>
 		<script src="script.js"></script>
 	</body>

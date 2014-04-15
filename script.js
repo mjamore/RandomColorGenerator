@@ -2,28 +2,42 @@ var options = [0,1,2,3,4,5,6,7,8,9,'a','b','c','d','e'];
 
 var hexValue = '';
 var colorCodePref = 'hex';
-// var c_colorCodePref = '';
+var savedSwatchesArray = [];
 var lastSavedColor = '';
+var LightShow = false;
 
 var $bgBtn = document.getElementById('bgBtn');
 var $panel = document.getElementById('panel');
 var $savedColors = document.getElementById('savedColors');
 var $scrollWrapper = document.getElementById('scrollWrapper');
+var $noSavedColorsLabel = document.getElementById('noSavedColorsLabel');
 var $colorCodeLabel = document.getElementById('colorCodeLabel');
 var $infoBtn = document.getElementById('infoBtn');
 var $popupOverlay = document.getElementById('popupOverlay');
 var $infoContent = document.getElementById('infoContent');
+var $instructions = document.getElementById('instructions');
+var $instructionsTouch = document.getElementById('instructionsTouch');
 var $closeBtn = document.getElementById('closeBtn');
 var $hexInput = document.getElementById('hexInput');
 var $rgbInput = document.getElementById('rgbInput');
+var $LightShowFoSho = document.getElementById('LightShowFoSho');
 var $panelToggleBtn = document.getElementById('panelToggleBtn');
 
+
+if(Modernizr.touch)
+{
+	$instructions.style.display = 'none';
+	$instructionsTouch.style.display = 'block';
+}
 
 if(docCookies.hasItem('c_colorCodePref'))
 {
 	// cookie does exist
 	// read c_colorCodePref value and set form input accordingly
 	var pref = docCookies.getItem('c_colorCodePref');
+	var storedSwatches = JSON.parse(docCookies.getItem('savedSwatchesArray'));
+	populateSwatches();
+
 	// update checked input
 	if(pref === $hexInput.value)
 	{
@@ -43,6 +57,7 @@ if(docCookies.hasItem('c_colorCodePref'))
 else
 {
 	// cookie does not exist
+	$panel.style.display = 'block'
 	// display popup
 	$popupOverlay.style.display = 'block';
 	// create cookie c_colorCodePref with the value 'hex'
@@ -68,6 +83,45 @@ function setColorCodePref()
 	updateLabel(hexValue);
 }
 
+function populateSwatches()
+{
+	// populate swatches
+	if(storedSwatches !== null)
+	{
+		for(var i = 0; i < storedSwatches.length; i++)
+		{
+			saveColor(storedSwatches[i]);
+		}
+
+		if(savedSwatchesArray.length > 0)
+		{
+			$noSavedColorsLabel.style.display = 'none';
+		}
+	}
+}
+
+function saveColor(hexValue)
+{
+	if(hexValue !== lastSavedColor)
+	{
+		// create new div node and append into savedColors
+		var swatch = document.createElement('span');
+		swatch.className = 'swatch';
+		swatch.dataset.hex = hexValue;
+		swatch.style.backgroundColor = hexValue;
+		swatch.innerHTML = '<i class="fa fa-times-circle-o swatchCloseBtn hide"></i>'
+		$scrollWrapper.appendChild(swatch);
+		$panel.style.display = 'block';
+		var width = $scrollWrapper.scrollWidth;
+		$scrollWrapper.scrollLeft += width;
+		$panelToggleBtn.style.top = '-30px';
+		lastSavedColor = hexValue;
+
+		savedSwatchesArray.push(hexValue);
+		docCookies.setItem('savedSwatchesArray', JSON.stringify(savedSwatchesArray), 604800);
+	}
+}
+
 function getNewColor()
 {
 	generateRandomHex();
@@ -76,20 +130,6 @@ function getNewColor()
 }
 getNewColor();
 
-function copyColorInit()
-{
-	var client = new ZeroClipboard( document.getElementById("colorCodeLabel"), {
-	  moviePath: "ZeroClipboard.swf"
-	} );
-
-  client.on( "aftercopy", function( event ) {
-    // `this` === `client`
-    // `event.target` === the element that was clicked
-    event.target.style.display = "none";
-    alert("Copied text to clipboard: " + event.data["text/plain"] );
-  } );
-}
-copyColorInit();
 
 function generateRandomHex()
 {
@@ -156,30 +196,10 @@ function closeAllTheThings()
 	$popupOverlay.style.display = 'none';
 }
 
-function saveColor()
-{
-	if(hexValue !== lastSavedColor)
-	{
-		// create new div node and append into savedColors
-		var swatch = document.createElement('span');
-		swatch.className = 'swatch';
-		swatch.dataset.hex = hexValue;
-		swatch.style.backgroundColor = hexValue;
-		swatch.innerHTML = '<i class="fa fa-times-circle-o swatchCloseBtn" style="display: none;"></i>'
-		$scrollWrapper.appendChild(swatch);
-		$panel.style.display = 'block';
-		var width = $scrollWrapper.scrollWidth;
-		$scrollWrapper.scrollLeft += width;
-		$panelToggleBtn.style.top = '-30px';
-		lastSavedColor = hexValue;
-	}
-}
-
 function swatchClicked(e)
 {
-	console.log('swatchClicked');
 	// return (e.target && e.target.nodeName == 'SPAN') ? true : false;
-	if(e.target && e.target.nodeName == 'SPAN')
+	if(e.target && e.target.nodeName === 'SPAN')
 	{
 		console.log('swatchClicked be true');
 		return true;
@@ -200,7 +220,6 @@ function showSwatchDetails(e)
 
 function swatchCloseBtnClicked(e)
 {
-	console.log('swatchCloseBtnClicked');
 	// return (e.target && e.target.nodeName == 'I') ? true : false;
 	if(e.target.nodeName == 'I')
 	{
@@ -216,7 +235,27 @@ function swatchCloseBtnClicked(e)
 
 function removeSwatch(e)
 {
-	console.log('removeSwatch');
+	var $swatch = e.target.parentNode;
+	var hexValue = $swatch.getAttribute('data-hex');
+	for( var i = 0; i < savedSwatchesArray.length; i++)
+	{
+		if(savedSwatchesArray[i] === hexValue)
+		{
+			$scrollWrapper.removeChild($swatch);
+
+			console.log(savedSwatchesArray);
+			savedSwatchesArray.splice(i, 1);
+			console.log(savedSwatchesArray);
+			docCookies.setItem('savedSwatchesArray', JSON.stringify(savedSwatchesArray), 604800);
+		}
+	}
+
+	if(savedSwatchesArray.length == 0)
+	{
+		$noSavedColorsLabel.style.display = 'block';
+	}
+
+	lastSavedColor = '';
 }
 
 function toggleSwatchCloseBtn(e)
@@ -237,59 +276,149 @@ function toggleSwatchCloseBtn(e)
 	}
 }
 
+function toggleSwatchCloseBtn(e)
+{
+	console.log('toggleSwatchCloseBtn');
+	var i = e.target.getElementsByTagName('i')[0];
+	if(i.classList.contains('hide'))
+	{
+		console.log('over');
+		i.classList.remove('hide');
+		i.classList.add('show');
+	}
+	else if(i.classList.contains('show'))
+	{
+		console.log('out');
+		i.classList.remove('show');
+		i.classList.add('hide');
+	}
+}
+
+function showSwatchCloseBtn(e)
+{
+	var i = e.target.getElementsByTagName('i')[0];
+	i.classList.remove('hide');
+	i.classList.add('show');
+}
+
+function hideSwatchCloseBtn(e)
+{
+	var i = e.target.getElementsByTagName('i')[0];
+	i.classList.remove('show');
+	i.classList.add('hide');
+}
+
+
+function toggleLightShowMode()
+{
+	if($LightShowFoSho.checked)
+	{
+		console.log('checked');
+		LightShow = setInterval(getNewColor, 100);
+	}
+	else
+	{
+		console.log('unchecked');
+		clearInterval(LightShow);
+	}
+}
+
 
 $hexInput.onchange = setColorCodePref;
 $rgbInput.onchange = setColorCodePref;
+$LightShowFoSho.onchange = toggleLightShowMode;
 
 window.addEventListener('keyup', registerKeyPress, false);
 
-
 $bgBtn.addEventListener('click', getNewColor, false);
-$infoBtn.addEventListener('click', toggleInfo, false);
-$closeBtn.addEventListener('click', toggleInfo, false);
-$popupOverlay.addEventListener('click', toggleInfo, false);
+$infoBtn.addEventListener('mousedown', toggleInfo, false);
 $panelToggleBtn.addEventListener('click', togglePanel, false);
 
-// $scrollWrapper.addEventListener('click', function(e)
-// {
-// 	if(swatchClicked(e))
-// 	{
-// 		showSwatchDetails(e);
-// 	}
-// }, false);
 
-// $scrollWrapper.addEventListener('click', function(e)
-// {
-// 	e.stopPropogation;
-// 	if(swatchCloseBtnClicked(e))
-// 	{
-// 		removeSwatch(e);
-// 	}
-// }, false);
+
+
+$closeBtn.addEventListener('click', function(e)
+{
+	e.stopPropagation();
+	toggleInfo();
+}, false);
+
+$popupOverlay.addEventListener('click', function(e)
+{
+	if(e.target == this)
+	{
+		toggleInfo();
+	}
+}, false);
+
+
+
+
 
 $scrollWrapper.addEventListener('click', function(e)
 {
-	if(swatchCloseBtnClicked(e))
-	{
-		removeSwatch(e);
-	}
-	else if(swatchClicked(e))
+	// e.stopPropagation();
+	if(swatchClicked(e))
 	{
 		showSwatchDetails(e);
 	}
 }, false);
 
-$scrollWrapper.addEventListener('mouseover', function(e)
+$scrollWrapper.addEventListener('click', function(e)
 {
-	e.stopPropogation;
-	toggleSwatchCloseBtn(e);
+	// e.stopPropagation();
+	if(swatchCloseBtnClicked(e))
+	{
+		removeSwatch(e);
+	}
 }, false);
+
+// $scrollWrapper.addEventListener('click', function(e)
+// {
+// 	if(swatchCloseBtnClicked(e))
+// 	{
+// 		removeSwatch(e);
+// 	}
+// 	else if(swatchClicked(e))
+// 	{
+// 		showSwatchDetails(e);
+// 	}
+// }, false);
+
+// $scrollWrapper.addEventListener('mouseover', function(e)
+// {
+// 	if (!e) var e = window.event;
+// 	var tg = (window.event) ? e.srcElement : e.target;
+// 	if (tg.nodeName != 'SPAN') return;
+// 	var reltg = (e.relatedTarget) ? e.relatedTarget : e.toElement;
+// 	while (reltg != tg && reltg.nodeName != 'BODY')
+// 		reltg= reltg.parentNode
+// 	if (reltg== tg) return;
+
+
+// 	if(e.target && e.target.nodeName == 'SPAN' || e.target && e.target.nodeName == 'I')
+// 	{	
+// 		showSwatchCloseBtn(e);
+// 	}
+// }, false);
 
 // $scrollWrapper.addEventListener('mouseout', function(e)
 // {
-// 	e.stopPropogation;
-// 	toggleSwatchCloseBtn(e);
-// }, true);
+// 	if (!e) var e = window.event;
+// 	var tg = (window.event) ? e.srcElement : e.target;
+// 	if (tg.nodeName != 'SPAN') return;
+// 	var reltg = (e.relatedTarget) ? e.relatedTarget : e.toElement;
+// 	while (reltg != tg && reltg.nodeName != 'BODY')
+// 		reltg= reltg.parentNode
+// 	if (reltg== tg) return;
+
+// 	hideSwatchCloseBtn(e);
+
+// 	// if(e.target && e.target.nodeName == 'SPAN')
+// 	// {
+// 	// 	hideSwatchCloseBtn(e);
+// 	// }
+// }, false);
 
 
 
